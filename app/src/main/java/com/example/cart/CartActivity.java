@@ -2,6 +2,7 @@ package com.example.cart;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,17 +20,18 @@ public class CartActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private CartAdapter adapter;
     private AppDatabase appDatabase;
+    public TextView totale;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
-
+        totale = findViewById(R.id.textViewTotal);
         recyclerView = findViewById(R.id.recyclerViewCart);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new CartAdapter(this);
+        adapter = new CartAdapter(this,totale);
         recyclerView.setAdapter(adapter);
 
         // Inizializza il database Room

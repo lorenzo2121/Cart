@@ -20,11 +20,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
     private List<Product> products = new ArrayList<>();
     private Context context;
+    private TextView textViewTotal; // Riferimento alla TextView del totale
 
-    public CartAdapter(Context context) {
+    public CartAdapter(Context context, TextView textViewTotal) {
         this.context = context;
+        this.textViewTotal = textViewTotal;
     }
-
 
     @NonNull
     @Override
@@ -46,6 +47,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 product.setQuantity(product.getQuantity() + 1);
                 notifyDataSetChanged(); // Aggiorna la RecyclerView quando la quantità cambia
                 updateProductInDatabase(product);
+                updateTotal(); // Aggiorna il totale dopo la modifica della quantità
             }
         });
         holder.removeButton.setOnClickListener(new View.OnClickListener() {
@@ -55,12 +57,14 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                     product.setQuantity(product.getQuantity() - 1);
                     notifyItemChanged(position); // Notifica solo l'elemento modificato
                     updateProductInDatabase(product);
+                    updateTotal(); // Aggiorna il totale dopo la modifica della quantità
                 }
 
                 if (product.getQuantity() == 0) {
                     removeProductFromDatabase(product);
                     products.remove(product);
                     notifyDataSetChanged(); // Aggiorna la RecyclerView dopo la rimozione
+                    updateTotal(); // Aggiorna il totale dopo la rimozione del prodotto
                 }
             }
         });
@@ -74,11 +78,25 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     public void setProducts(List<Product> products) {
         this.products = products;
         notifyDataSetChanged();
+        updateTotal(); // Aggiorna il totale quando si impostano i prodotti
+    }
+
+    public void updateTotal() {
+        double total = calculateTotal();
+        textViewTotal.setText("Total: €" + String.format("%.2f", total));
+    }
+
+    private double calculateTotal() {
+        double total = 0;
+        for (Product product : products) {
+            total += product.getPrice() * product.getQuantity();
+        }
+        return total;
     }
 
     public static class CartViewHolder extends RecyclerView.ViewHolder {
         public TextView productName, productPrice, productQuantity;
-        public Button addButton,removeButton;
+        public Button addButton, removeButton;
 
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
